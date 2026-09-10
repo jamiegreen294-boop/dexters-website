@@ -1,0 +1,52 @@
+name: Remove extra theme card borders
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/remove-extra-theme-borders.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  tidy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove duplicate CSS outlines only
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          files = [
+              'theme-default.html',
+              'theme-valentine.html',
+              'theme-christmas.html',
+              'theme-halloween.html',
+              'theme-pride.html',
+          ]
+          old_card = 'border:1px solid rgba(255,255,255,.42);border-radius:11px;overflow:hidden;scroll-snap-align:start'
+          new_card = 'border:0;border-radius:11px;overflow:hidden;scroll-snap-align:start'
+          old_partner = 'position:relative;border:1px solid rgba(255,255,255,.42);border-radius:11px;overflow:hidden'
+          new_partner = 'position:relative;border:0;border-radius:11px;overflow:hidden'
+          for name in files:
+              p = Path(name)
+              s = p.read_text()
+              s2 = s.replace(old_card, new_card).replace(old_partner, new_partner)
+              if s2 == s:
+                  print(f'No matching duplicate outline found in {name}')
+              else:
+                  p.write_text(s2)
+                  print(f'Tidied {name}')
+          PY
+      - name: Commit tidy-up
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add theme-*.html
+          if git diff --cached --quiet; then
+            echo 'No changes needed'
+          else
+            git commit -m 'Remove duplicate theme card outlines'
+            git push
+          fi
