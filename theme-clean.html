@@ -1,0 +1,16 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Dexter's</title><style>html,body{margin:0;background:#03243a;color:#fff;font-family:Arial,sans-serif}#loading{padding:20px}</style></head><body><div id="loading">Loading Dexter's…</div><script>
+(async function(){
+  const allowed=['default','valentine','christmas','halloween','pride'];
+  const q=new URLSearchParams(location.search);
+  const name=(q.get('name')||'default').toLowerCase();
+  const theme=allowed.includes(name)?name:'default';
+  try{
+    const res=await fetch('theme-'+theme+'.html',{cache:'no-store'});
+    let html=await res.text();
+    html=html.replaceAll('border:1px solid rgba(255,255,255,.42);border-radius:11px;overflow:hidden;scroll-snap-align:start','border:0;border-radius:11px;overflow:hidden;scroll-snap-align:start');
+    html=html.replaceAll('position:relative;border:1px solid rgba(255,255,255,.42);border-radius:11px;overflow:hidden','position:relative;border:0;border-radius:11px;overflow:hidden');
+    for(const t of allowed){html=html.replaceAll('href="theme-'+t+'.html"','href="theme-clean.html?name='+t+'"');}
+    document.open(); document.write(html); document.close();
+  }catch(e){document.getElementById('loading').textContent='Dexter\'s website could not load. Please refresh.';}
+})();
+</script></body></html>
