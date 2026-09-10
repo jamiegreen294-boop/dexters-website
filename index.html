@@ -9,6 +9,7 @@
   if(!theme){
     const d=new Date(), m=d.getMonth()+1, day=d.getDate();
     if((m===1)||(m===2&&day<=15)) theme='valentine';
+    else if(m===6) theme='pride';
     else if((m===9)||(m===10)) theme='halloween';
     else if((m===11)||(m===12)) theme='christmas';
     else theme='default';
