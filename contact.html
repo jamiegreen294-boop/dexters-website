@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact Dexter's</title>
+<meta name="theme-color" content="#03243a">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#031f33;color:#fff;font-family:Arial,Helvetica,sans-serif}.wrap{max-width:980px;margin:auto;padding:28px 18px 60px}
+a{color:#ffd43c}.back{display:inline-block;margin-bottom:20px}.hero{padding:28px;border:1px solid #35536a;border-radius:18px;background:#062c47}
+h1{font:700 42px Georgia,serif;margin:0 0 8px}.muted{color:#c8d7e0}.grid{display:grid;grid-template-columns:1fr 1.15fr;gap:22px;margin-top:22px}.card{border:1px solid #35536a;border-radius:16px;padding:22px;background:#06263d}
+.info p{line-height:1.65;margin:10px 0}.info strong{display:block;color:#ffd43c;font-size:12px;letter-spacing:.08em;margin-bottom:3px}
+label{display:block;font-weight:700;margin:13px 0 6px}input,select,textarea{width:100%;padding:12px 13px;border:1px solid #6e8798;border-radius:9px;background:#fff;color:#111;font:inherit}textarea{min-height:150px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.btn{margin-top:15px;border:0;border-radius:999px;background:#ffd43c;color:#091a26;font-weight:800;padding:13px 22px;cursor:pointer}.note{font-size:12px;color:#b9cad5;margin-top:10px;line-height:1.5}.privacy{font-size:12px;color:#c8d7e0;margin-top:16px}
+.route{margin-top:8px;font-size:12px;color:#9ed0ef}.success{display:none;margin-top:14px;padding:12px;border-radius:10px;background:#0d513e}
+@media(max-width:700px){.grid,.row{grid-template-columns:1fr}h1{font-size:34px}}
+</style></head>
+<body><main class="wrap">
+<a class="back" href="index.html">← Back to Dexter's</a>
+<section class="hero"><h1>Contact us</h1><p class="muted">Questions, orders, catering, loyalty, jobs or privacy — choose the right subject and we'll direct your enquiry to the correct Dexter's inbox.</p></section>
+<div class="grid">
+<section class="card info">
+<h2>Dexter's</h2>
+<p><strong>ADDRESS</strong>10A Dundasvale Court<br>Glasgow, G4 0JS<br>Scotland</p>
+<p><strong>TELEPHONE</strong><a href="tel:+441414735249">0141 473 5249</a></p>
+<p><strong>GENERAL EMAIL</strong><a href="mailto:hello@dextersspot.co.uk">hello@dextersspot.co.uk</a></p>
+<p><strong>OPEN THE APP</strong><a href="https://app.dextersspot.co.uk/">Dexter's Loyalty App</a></p>
+<p><strong>ORDER ONLINE</strong><a href="https://app.dextersspot.co.uk/collection-order.html">Collection ordering</a></p>
+</section>
+<section class="card">
+<h2>Send an enquiry</h2>
+<form id="enquiryForm">
+<div class="row"><div><label for="name">Name</label><input id="name" name="name" required autocomplete="name"></div><div><label for="email">Email</label><input id="email" name="email" type="email" required autocomplete="email"></div></div>
+<label for="phone">Phone number <span class="muted">(optional)</span></label><input id="phone" name="phone" autocomplete="tel">
+<label for="topic">What can we help with?</label>
+<select id="topic" name="topic" required>
+<option value="">Select an option</option>
+<option value="general">General enquiry</option>
+<option value="order">Existing or collection order</option>
+<option value="catering">Catering enquiry</option>
+<option value="loyalty">Loyalty app / rewards / offers</option>
+<option value="jobs">Jobs / recruitment</option>
+<option value="complaint">Complaint or feedback</option>
+<option value="privacy">Privacy / personal data request</option>
+</select>
+<div class="route" id="routeHint"></div>
+<label for="subject">Subject</label><input id="subject" name="subject" required maxlength="120">
+<label for="message">Your message</label><textarea id="message" name="message" required maxlength="3000"></textarea>
+<label style="font-weight:400"><input id="consent" type="checkbox" required style="width:auto;margin-right:8px">I agree that Dexter's may use these details to respond to my enquiry.</label>
+<button class="btn" type="submit">Send enquiry →</button>
+<div class="note">Your device's email app will open with the correct Dexter's inbox, subject and message already filled in. Press Send there to complete the enquiry.</div>
+<div class="success" id="success">Your enquiry has been prepared for the correct Dexter's inbox.</div>
+</form>
+<p class="privacy">See our <a href="privacy.html">Privacy & Data Protection</a> information.</p>
+</section></div></main>
+<script>
+const routes={
+ general:{email:'hello@dextersspot.co.uk',label:'General enquiries'},
+ order:{email:'orders@dextersspot.co.uk',label:'Orders'},
+ catering:{email:'catering@dextersspot.co.uk',label:'Catering'},
+ loyalty:{email:'offers@dextersspot.co.uk',label:'Loyalty / offers'},
+ jobs:{email:'recruitment@dextersspot.co.uk',label:'Recruitment'},
+ complaint:{email:'hello@dextersspot.co.uk',label:'Complaints / feedback'},
+ privacy:{email:'privacy@dextersspot.co.uk',label:'Privacy / data protection'}
+};
+const topic=document.getElementById('topic'),hint=document.getElementById('routeHint');
+topic.addEventListener('change',()=>{const r=routes[topic.value];hint.textContent=r?'This enquiry will go to: '+r.label:''});
+document.getElementById('enquiryForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ if(!e.currentTarget.reportValidity()) return;
+ const r=routes[topic.value]; if(!r)return;
+ const name=document.getElementById('name').value.trim(), email=document.getElementById('email').value.trim(), phone=document.getElementById('phone').value.trim();
+ const subject=document.getElementById('subject').value.trim(), msg=document.getElementById('message').value.trim();
+ const body='Name: '+name+'\nEmail: '+email+'\nPhone: '+(phone||'Not provided')+'\nEnquiry type: '+r.label+'\n\n'+msg;
+ document.getElementById('success').style.display='block';
+ location.href='mailto:'+encodeURIComponent(r.email)+'?subject='+encodeURIComponent('[Dexter\'s Website] '+subject)+'&body='+encodeURIComponent(body);
+});
+</script></body></html>
