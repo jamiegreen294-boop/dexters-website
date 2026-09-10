@@ -1,4 +1,4 @@
-name: Remove extra theme card borders
+name: Clean theme navigation and icons
 
 on:
   push:
@@ -14,10 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Remove duplicate CSS outlines only
+      - name: Remove sustainability and replace placeholder icons
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
+
           files = [
               'theme-default.html',
               'theme-valentine.html',
@@ -25,21 +27,68 @@ jobs:
               'theme-halloween.html',
               'theme-pride.html',
           ]
-          old_card = 'border:1px solid rgba(255,255,255,.42);border-radius:11px;overflow:hidden;scroll-snap-align:start'
-          new_card = 'border:0;border-radius:11px;overflow:hidden;scroll-snap-align:start'
-          old_partner = 'position:relative;border:1px solid rgba(255,255,255,.42);border-radius:11px;overflow:hidden'
-          new_partner = 'position:relative;border:0;border-radius:11px;overflow:hidden'
+
+          FOOD_ICON = '''<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4.5 3v5.5A2.5 2.5 0 0 0 7 11v10M9.5 3v5.5A2.5 2.5 0 0 1 7 11"/><path d="M16 3v18M16 3c3 1.5 4 4 4 6.5S19 14 16 15"/></svg>'''
+          PEOPLE_ICON = '''<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3.3 2.5-5 5.5-5s4.9 1.7 5.5 5"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5c2.9-.5 5 .9 5.5 4.5"/></svg>'''
+          HEART_ICON = '''<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.8a5.5 5.5 0 0 0-7.8 0L12 5.8l-1-1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.4a5.5 5.5 0 0 0 0-7.8z"/></svg>'''
+          SEARCH_ICON = '''<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>'''
+
+          SOCIAL = '''<div class="social">Follow us<div class="social-icons" aria-label="Social media">
+          <span title="Instagram" aria-label="Instagram"><svg viewBox="0 0 24 24" role="img"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.7" r="1" class="fill-dot"/></svg></span>
+          <span title="TikTok" aria-label="TikTok"><svg viewBox="0 0 24 24" role="img"><path d="M14 3v11.2a4.2 4.2 0 1 1-3.7-4.2"/><path d="M14 3c.7 3 2.4 4.8 5 5.2"/></svg></span>
+          <span title="Facebook" aria-label="Facebook"><svg viewBox="0 0 24 24" role="img"><path d="M14 21v-8h3l.5-4H14V7.2c0-1.2.4-2.2 2.3-2.2H18V1.5c-.6-.1-1.7-.2-3-.2-3 0-5 1.8-5 5.2V9H7v4h3v8"/></svg></span>
+          <span title="YouTube" aria-label="YouTube"><svg viewBox="0 0 24 24" role="img"><rect x="2.5" y="6" width="19" height="12" rx="3"/><path d="m10 9 6 3-6 3z" class="fill-icon"/></svg></span>
+          <span title="LinkedIn" aria-label="LinkedIn"><svg viewBox="0 0 24 24" role="img"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.1M11 17v-4c0-2 1.2-3.2 3-3.2s3 1.2 3 3.2v4M11 10v7"/></svg></span>
+          </div></div>'''
+
+          value_pattern = re.compile(r'<div class="value"><div class="ico">.*?</div><div><strong>A BRIGHTER TOMORROW</strong>.*?</div></div>', re.S)
+
           for name in files:
               p = Path(name)
               s = p.read_text()
-              s2 = s.replace(old_card, new_card).replace(old_partner, new_partner)
-              if s2 == s:
-                  print(f'No matching duplicate outline found in {name}')
-              else:
-                  p.write_text(s2)
-                  print(f'Tidied {name}')
+
+              # Remove Sustainability from navigation/footer and remove the sustainability value tile.
+              s = s.replace('<a href="#sustainability">Sustainability</a>', '')
+              s = value_pattern.sub('', s)
+              s = s.replace('grid-template-columns:repeat(4,1fr)', 'grid-template-columns:repeat(3,1fr)')
+
+              # Replace placeholder value icons with clean inline vector icons.
+              s = s.replace('<div class="ico">♧</div>', f'<div class="ico">{FOOD_ICON}</div>')
+              s = s.replace('<div class="ico">♙</div>', f'<div class="ico">{PEOPLE_ICON}</div>')
+              s = s.replace('<div class="ico">♡</div>', f'<div class="ico">{HEART_ICON}</div>')
+
+              # Keep each theme's existing accent colour while switching icon sizing to SVG.
+              s = re.sub(
+                  r'\.ico\{font-size:39px;color:([^;]+);line-height:1\}',
+                  r'.ico{width:42px;height:42px;color:\1;line-height:1;flex:0 0 42px}.ico svg{width:100%;height:100%;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}',
+                  s,
+              )
+
+              # Replace the placeholder search character with a real magnifying-glass icon.
+              s = re.sub(
+                  r'(<a class="search" href="search\.html" aria-label="Search Dexter\'s">).*?(</a>)',
+                  lambda m: m.group(1) + SEARCH_ICON + m.group(2),
+                  s,
+              )
+              s = re.sub(
+                  r'(\.search\{[^}]*\})',
+                  r'\1.search svg{width:27px;height:27px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}',
+                  s,
+                  count=1,
+              )
+
+              # Replace the malformed text social symbols with consistent SVG icons.
+              s = re.sub(r'<div class="social">Follow us<b>.*?</b></div>', SOCIAL, s, flags=re.S)
+              s = re.sub(
+                  r'\.social b\{[^}]*\}',
+                  '.social-icons{display:flex;gap:18px;align-items:center;margin-top:14px}.social-icons span{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px}.social-icons svg{width:25px;height:25px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.social-icons .fill-icon,.social-icons .fill-dot{fill:currentColor;stroke:none}',
+                  s,
+              )
+
+              p.write_text(s)
+              print(f'Updated {name}')
           PY
-      - name: Commit tidy-up
+      - name: Commit theme cleanup
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -47,6 +96,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No changes needed'
           else
-            git commit -m 'Remove duplicate theme card outlines'
+            git commit -m 'Remove sustainability and fix website icons'
             git push
           fi
