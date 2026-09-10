@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dexter's</title>
+<script>
+(function(){
+  const q=new URLSearchParams(location.search);
+  const manual=(q.get('theme')||'').toLowerCase();
+  const allowed=['default','valentine','christmas','halloween','pride'];
+  let theme=allowed.includes(manual)?manual:null;
+  if(!theme){
+    const d=new Date(), m=d.getMonth()+1, day=d.getDate();
+    if((m===1)||(m===2&&day<=15)) theme='valentine';
+    else if((m===9)||(m===10)) theme='halloween';
+    else if((m===11)||(m===12)) theme='christmas';
+    else theme='default';
+  }
+  location.replace('theme-'+theme+'.html');
+})();
+</script></head><body style="background:#03243a;color:white;font-family:Arial,sans-serif"><p>Loading Dexter's…</p></body></html>
