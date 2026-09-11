@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Dexter's</title><style>html,body{margin:0;background:#03243a;color:#fff;font-family:Arial,sans-serif}#loading{padding:20px}</style></head><body><div id="loading">Loading Dexter's…</div><script>
 (async function(){
-  const allowed=['default','valentine','christmas','halloween','pride','burns'];
+  const allowed=['default','valentine','christmas','halloween','pride','burns','st-andrews'];
   const q=new URLSearchParams(location.search);
   const name=(q.get('name')||'default').toLowerCase();
   const theme=allowed.includes(name)?name:'default';
