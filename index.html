@@ -4,7 +4,7 @@
 (function(){
   const q=new URLSearchParams(location.search);
   const manual=(q.get('theme')||'').toLowerCase();
-  const allowed=['default','valentine','christmas','halloween','pride','burns'];
+  const allowed=['default','valentine','christmas','halloween','pride','burns','st-andrews'];
   let theme=allowed.includes(manual)?manual:null;
   if(!theme){
     const d=new Date(), m=d.getMonth()+1, day=d.getDate();
@@ -12,6 +12,7 @@
     else if((m===1 && (day<=9 || day>=26)) || (m===2 && day<=15)) theme='valentine';
     else if(m===6) theme='pride';
     else if((m===9)||(m===10)) theme='halloween';
+    else if(m===11 && day>=24 && day<=30) theme='st-andrews';
     else if((m===11)||(m===12)) theme='christmas';
     else theme='default';
   }
